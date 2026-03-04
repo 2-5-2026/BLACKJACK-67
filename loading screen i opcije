@@ -1,1 +1,97 @@
+import random
+
+# Karte
+suits = ["H", "D", "C", "S"]
+ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
+
+def create_deck():
+    deck = [rank + suit for suit in suits for rank in ranks]
+    random.shuffle(deck)
+    return deck
+
+def hand_value(hand):
+    value = 0
+    aces = 0
+
+    for card in hand:
+        rank = card[:-1]
+        if rank in ["J", "Q", "K"]:
+            value += 10
+        elif rank == "A":
+            value += 11
+            aces += 1
+        else:
+            value += int(rank)
+
+    while value > 21 and aces:
+        value -= 10
+        aces -= 1
+
+    return value
+
+def show_hand(hand):
+    return " ".join(hand)
+
+def play():ce == "h":
+            player.append(deck.pop())
+        elif choice == "s":
+            break
+
+    while hand_value(dealer) < 17:
+        dealer.append(deck.pop())
+
+    print("\nDealer:", show_hand(dealer), "| Score:", hand_value(dealer))
+    print("Ti:", show_hand(player), "| Score:", hand_value(player))
+
+    if hand_value(dealer) > 21 or hand_value(player) > hand_value(dealer):
+        print("🎉 Pobijedio si!")
+    elif hand_value(player) == hand_value(dealer):
+        print("🤝 Neriješeno!")
+    else:
+        print("😢 Izgubio si!")
+
+# Loop igre
+while True:
+    play()
+    again = input("\nIgraj opet? (y/n): ").lower()
+    if again != "y":
+        break
+    deck = create_deck()
+    player = [deck.pop(), deck.pop()]
+    dealer = [deck.pop(), deck.pop()]
+
+    while True:
+        print("\nTvoje karte:", show_hand(player), "| Score:", hand_value(player))
+        print("Dealer:", dealer[0], "?")
+
+        if hand_value(player) > 21:
+            print("💥 Izgubio si!")
+            return
+
+        choice = input("Hit (h) ili Stand (s): ").lower()
+
+        if choice == "h":
+            player.append(deck.pop())
+        elif choice == "s":
+            break
+
+    while hand_value(dealer) < 17:
+        dealer.append(deck.pop())
+
+    print("\nDealer:", show_hand(dealer), "| Score:", hand_value(dealer))
+    print("Ti:", show_hand(player), "| Score:", hand_value(player))
+
+    if hand_value(dealer) > 21 or hand_value(player) > hand_value(dealer):
+        print("🎉 Pobijedio si!")
+    elif hand_value(player) == hand_value(dealer):
+        print("🤝 Neriješeno!")
+    else:
+        print("😢 Izgubio si!")
+
+# Loop igre
+while True:
+    play()
+    again = input("\nIgraj opet? (y/n): ").lower()
+    if again != "y":
+        break
 
