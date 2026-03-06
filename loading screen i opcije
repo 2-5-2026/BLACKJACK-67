@@ -19,7 +19,7 @@ running_music = True
 # -----------------------
 
 def casino_music():
-    tones = [220, 247, 262, 294, 330]
+    tones = [220, 247, 262, 294, 330, 390, 294, 330, 220, 247, 390, 262]
     while running_music:
         for t in tones:
             winsound.Beep(int(t * (VOLUME/5)), 200)
