@@ -34,21 +34,20 @@ def start_music():
 # BLACKJACK LOGIC
 # -----------------------
 
-suits = ["♠", "♥", "♦", "♣"]
-values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+boje = ["♠", "♥", "♦", "♣"]
+znakovi = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
 
 def create_deck():
     deck = []
-    for s in suits:
-        for v in values:
-            deck.append(v + s)
+    for b in boje:
+        for z in znakovi:
+            deck.append(b + z)
     random.shuffle(deck)
     return deck
 
+def vrijednost_karte(karta):
 
-def card_value(card):
-
-    v = card[:-1]
+    v = karta[:-1]
 
     if v in ["J","Q","K"]:
         return 10
@@ -56,21 +55,20 @@ def card_value(card):
         return 11
     return int(v)
 
-
 def hand_value(hand):
 
     total = 0
-    aces = 0
+    asovi = 0
 
     for c in hand:
         val = card_value(c)
         total += val
         if c[:-1] == "A":
-            aces += 1
+            asovi += 1
 
-    while total > 21 and aces:
+    while total > 21 and asovi:
         total -= 10
-        aces -= 1
+        asovi -= 1
 
     return total
 
