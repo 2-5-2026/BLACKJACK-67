@@ -1,72 +1,72 @@
 import random
-
-karte = {"2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10,
-    "J": 10, "Q": 10, "K": 10, "A": 11}
-
-deck = list(karte.keys())
-
-def podijeli_kartu():
-    return random.choice(deck)
-
-def calculate_hand(hand):
-    value = sum(karte[c] for c in hand)
-
-    # Adjust for asovi
-    asovi = hand.count("A")
-    while value > 21 and aces:
-        value -= 10
-        aces -= 1
-
-    return value
-
-def show_hand(name, hand, hide_first=False):
-    if hide_first:
-        print(f"{name}'s hand: ['?'] + {hand[1:]}")
+karte = {'2' : 2, '3' : 3, '4' : 4, '5' : 5, '6' : 6, '7' : 7, '8' : 8,
+         '9' : 9, 'J' : 10, 'Q' : 10, 'K' : 10, 'A' : 11}
+vrijednosti = list(karte.keys())
+zb = 0
+bra=0
+for e in random.sample(vrijednosti, 2):
+    zb += karte[e]
+    if e=='A':
+        bra+=1;
+    print(e,':', karte[e])
+print("Zbroj je: ", zb)
+while True:
+    print("Zelis li izvući kartu?? (Napiši DA ili NE)")
+    s = str(input())
+    if s=='DA':
+        r= random.choice(vrijednosti)
+        if r=='A':
+            bra+=1;
+        print(r,':', karte[r])
+        zb+=karte[r]
+        
+        if zb>21:
+            if bra>0:
+                zb-=10;
+                bra-=1
+            else:
+                print("Zbroj je: ", zb)
+                break
+        print("Zbroj je: ", zb)
+        
+    elif s =='NE':
+        break
     else:
-        print(f"{name}'s hand: {hand} (value: {calculate_hand(hand)})")
-
-def blackjack():
-    player = [deal_card(), deal_card()]
-    dealer = [deal_card(), deal_card()]
-
-    print("\n--- BLACKJACK ---")
-    show_hand("Dealer", dealer, hide_first=True)
-    show_hand("Player", player)
-
-    # Player turn
-    while calculate_hand(player) < 21:
-        move = input("Hit or stand? (h/s): ").lower()
-
-        if move == "h":
-            player.append(deal_card())
-            show_hand("Player", player)
-
-            if calculate_hand(player) > 21:
-                print("You busted! Dealer wins.")
-                return
+        print("Neispravan unos!!")
+        continue
+if zb>21:
+    print("EKSPLODIRAJ!!!!")
+else:
+    print("SADA KOMPJUTER IZVLACI\n\n")
+    zbk = 0
+    bra=0
+    for e in random.sample(vrijednosti, 2):
+        zbk += karte[e]
+        print(e,':', karte[e])
+        if e == 'A':
+            bra+=1
+    print("Zbroj je: ", zbk)
+    while True:
+        if zbk<17:
+            r= random.choice(vrijednosti)
+            if r=='A':
+                bra+=1
+            print(r,':', karte[r])
+            zbk+=karte[r]
+            print("Zbroj je: ", zbk)
+            if zbk>21 and bra>0:
+                zbk-=10
+                bra-=1
         else:
             break
+    print("Zbroj je: ", zbk)
 
-    # Dealer turn
-    print("\nDealer reveals hand:")
-    show_hand("Dealer", dealer)
-
-    while calculate_hand(dealer) < 17:
-        dealer.append(deal_card())
-        show_hand("Dealer", dealer)
-
-    player_val = calculate_hand(player)
-    dealer_val = calculate_hand(dealer)
-
-    print("\nFinal Results:")
-    show_hand("Player", player)
-    show_hand("Dealer", dealer)
-
-    if dealer_val > 21 or player_val > dealer_val:
-        print("You win!")
-    elif dealer_val > player_val:
-        print("Dealer wins!")
+    if zbk>zb and zbk<22:
+        print("Izgubio si!!")
+    elif zbk<zb:
+        print("Pobjedio si!!")
     else:
-        print("Push (tie)!")
+        print("TIE!!")
 
-blackjack()
+
+    
