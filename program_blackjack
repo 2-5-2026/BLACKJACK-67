@@ -1,0 +1,72 @@
+import random
+
+karte = {"2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10,
+    "J": 10, "Q": 10, "K": 10, "A": 11}
+
+deck = list(karte.keys())
+
+def podijeli_kartu():
+    return random.choice(deck)
+
+def calculate_hand(hand):
+    value = sum(karte[c] for c in hand)
+
+    # Adjust for asovi
+    asovi = hand.count("A")
+    while value > 21 and aces:
+        value -= 10
+        aces -= 1
+
+    return value
+
+def show_hand(name, hand, hide_first=False):
+    if hide_first:
+        print(f"{name}'s hand: ['?'] + {hand[1:]}")
+    else:
+        print(f"{name}'s hand: {hand} (value: {calculate_hand(hand)})")
+
+def blackjack():
+    player = [deal_card(), deal_card()]
+    dealer = [deal_card(), deal_card()]
+
+    print("\n--- BLACKJACK ---")
+    show_hand("Dealer", dealer, hide_first=True)
+    show_hand("Player", player)
+
+    # Player turn
+    while calculate_hand(player) < 21:
+        move = input("Hit or stand? (h/s): ").lower()
+
+        if move == "h":
+            player.append(deal_card())
+            show_hand("Player", player)
+
+            if calculate_hand(player) > 21:
+                print("You busted! Dealer wins.")
+                return
+        else:
+            break
+
+    # Dealer turn
+    print("\nDealer reveals hand:")
+    show_hand("Dealer", dealer)
+
+    while calculate_hand(dealer) < 17:
+        dealer.append(deal_card())
+        show_hand("Dealer", dealer)
+
+    player_val = calculate_hand(player)
+    dealer_val = calculate_hand(dealer)
+
+    print("\nFinal Results:")
+    show_hand("Player", player)
+    show_hand("Dealer", dealer)
+
+    if dealer_val > 21 or player_val > dealer_val:
+        print("You win!")
+    elif dealer_val > player_val:
+        print("Dealer wins!")
+    else:
+        print("Push (tie)!")
+
+blackjack()
