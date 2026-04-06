@@ -62,7 +62,7 @@ else:
     while True:
         if zbk<17:
             r= random.choice(vrijednosti)
-            vtrijednosti.remove(r)
+            vrijednosti.remove(r)
             if 'A' in r:
                 bra+=1
             print(r,':', karte[r])
