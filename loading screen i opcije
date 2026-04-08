@@ -2,333 +2,380 @@ import tkinter as tk
 from tkinter import messagebox
 import random
 import threading
-import winsound
 import time
 
-# -----------------------
+# ----------------------
 # GLOBAL SETTINGS
-# -----------------------
-
+# ----------------------
 FONT_SIZE = 14
+START_MONEY = 2000
 VOLUME = 5
 running_music = True
 
+# ----------------------
+# WINSOUND (samo Windows)
+# ----------------------
+try:
+    import winsound
+except:
+    winsound = None
 
-# -----------------------
-# MUSIC GENERATOR
-# -----------------------
+# ----------------------
+# MUZIKA – vibey kazino vibe
+# ----------------------
+def casino_vibe_music():
+    notes = [
+        440, 523, 587, 523, 440, 392, 330,
+        392, 440, 392, 349, 330, 294
+    ]
+    rhythm = [300, 200, 200, 300, 300, 200, 400,
+              200, 300, 200, 300, 300, 400]
+    bass = [220, 262, 294, 262]
 
-def casino_music():
-    tones = [220, 247, 262, 294, 330, 390, 294, 330, 220, 247, 390, 262]
     while running_music:
-        for t in tones:
-            winsound.Beep(int(t * (VOLUME/5)), 200)
+        for i, tone in enumerate(notes):
+            if not running_music:
+                break
+            if winsound:
+                winsound.Beep(int(tone * (VOLUME/5)), rhythm[i])
+                winsound.Beep(int(bass[i % len(bass)] * (VOLUME/5)), int(rhythm[i] * 0.6))
             time.sleep(0.05)
 
 def start_music():
-    thread = threading.Thread(target=casino_music, daemon=True)
-    thread.start()
+    threading.Thread(target=casino_vibe_music, daemon=True).start()
 
+def stop_music():
+    global running_music
+    running_music = False
 
-# -----------------------
-# BLACKJACK LOGIC
-# -----------------------
-
-boje = ["♠", "♥", "♦", "♣"]
-znakovi = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+# ----------------------
+# KARTE
+# ----------------------
+suits = ["♠", "♥", "♦", "♣"]
+values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
 
 def create_deck():
-    deck = []
-    for b in boje:
-        for z in znakovi:
-            deck.append(b + z)
+    deck = [v + s for s in suits for v in values]
     random.shuffle(deck)
     return deck
 
-def vrijednost_karte(karta):
-
-    v = karta[:-1]
-
-    if v in ["J","Q","K"]:
+def card_value(card):
+    v = card[:-1]
+    if v in ["J", "Q", "K"]:
         return 10
     if v == "A":
         return 11
     return int(v)
 
 def hand_value(hand):
-
-    total = 0
-    asovi = 0
-
-    for c in hand:
-        val = card_value(c)
-        total += val
-        if c[:-1] == "A":
-            asovi += 1
-
-    while total > 21 and asovi:
+    total = sum(card_value(c) for c in hand)
+    aces = sum(1 for c in hand if c[:-1] == "A")
+    while total > 21 and aces:
         total -= 10
-        asovi -= 1
-
+        aces -= 1
     return total
 
+# ----------------------
+# CRTAJ KARTU
+# ----------------------
+def draw_card(canvas, x, y, card):
+    w, h = 60, 90
+    if card == "?♠":  # karta okrenuta naopako
+        canvas.create_rectangle(x, y, x+w, y+h, fill="blue", outline="black", width=2)
+        canvas.create_text(x+w/2, y+h/2, text="?", fill="white", font=("Arial", 24, "bold"))
+        return
+    suit = card[-1]
+    value = card[:-1]
+    color = "red" if suit in ["♥", "♦"] else "black"
+    canvas.create_rectangle(x, y, x+w, y+h, fill="white", outline="black", width=2)
+    canvas.create_text(x+8, y+10, text=f"{value}{suit}", fill=color, font=("Arial", 12, "bold"), anchor="nw")
+    canvas.create_text(x+w/2, y+h/2, text=suit, fill=color, font=("Arial", 24, "bold"))
 
-# -----------------------
-# GAME CLASS
-# -----------------------
-
+# ----------------------
+# BLACKJACK GAME
+# ----------------------
 class Blackjack:
-
     def __init__(self, root):
-
         self.root = root
+        self.money = START_MONEY
         self.name = ""
-        self.money = 2000
         self.bet = 0
-
         self.deck = []
         self.player = []
         self.dealer = []
-        self.ai1 = []
-        self.ai2 = []
-        self.ai3 = []
+        self.round_active = False
+
+        # SPLIT VARIABLES
+        self.split_hands = []
+        self.active_hand_index = 0
+        self.is_split = False
 
         self.main_menu()
 
-    # -----------------------
-    # MAIN MENU
-    # -----------------------
-
+    # ------------------ MAIN MENU ------------------
     def main_menu(self):
-
         for w in self.root.winfo_children():
             w.destroy()
-
-        tk.Label(self.root, text="BLACKJACK CASINO",
-                 font=("Arial", FONT_SIZE+10)).pack(pady=20)
-
-        tk.Label(self.root, text="Unesi ime:",
-                 font=("Arial", FONT_SIZE)).pack()
-
-        self.name_entry = tk.Entry(self.root, font=("Arial", FONT_SIZE))
+        self.root.configure(bg="#0b5e2b")
+        tk.Label(self.root, text="BLACKJACK CASINO", font=("Courier New", FONT_SIZE+10, "bold"),
+                 bg="#0b5e2b", fg="gold").pack(pady=20)
+        tk.Label(self.root, text="Unesi ime:", bg="#0b5e2b", fg="white").pack()
+        self.name_entry = tk.Entry(self.root)
         self.name_entry.pack()
+        tk.Button(self.root, text="Start", command=self.start_game).pack(pady=10)
 
-        tk.Button(self.root, text="Start",
-                  command=self.start_game).pack(pady=10)
-
-        tk.Button(self.root, text="Settings",
-                  command=self.settings_menu).pack()
-
-        tk.Button(self.root, text="Exit",
-                  command=self.root.quit).pack(pady=10)
-
-    # -----------------------
-    # SETTINGS
-    # -----------------------
-
-    def settings_menu(self):
-
-        global FONT_SIZE, VOLUME
-
-        win = tk.Toplevel(self.root)
-        win.title("Settings")
-
-        tk.Label(win, text="Font Size").pack()
-
-        def bigger():
-            global FONT_SIZE
-            FONT_SIZE += 2
-
-        def smaller():
-            global FONT_SIZE
-            FONT_SIZE -= 2
-
-        tk.Button(win, text="+", command=bigger).pack()
-        tk.Button(win, text="-", command=smaller).pack()
-
-        tk.Label(win, text="Music Volume").pack()
-
-        def vol_up():
-            global VOLUME
-            VOLUME = min(10, VOLUME+1)
-
-        def vol_down():
-            global VOLUME
-            VOLUME = max(1, VOLUME-1)
-
-        tk.Button(win, text="Volume +", command=vol_up).pack()
-        tk.Button(win, text="Volume -", command=vol_down).pack()
-
-    # -----------------------
-    # START GAME
-    # -----------------------
-
+    # ------------------ START GAME ------------------
     def start_game(self):
-
         self.name = self.name_entry.get()
-
         if not self.name:
             messagebox.showerror("Error", "Upisi ime!")
             return
-
         self.game_screen()
 
-    # -----------------------
-    # GAME SCREEN
-    # -----------------------
-
+    # ------------------ GAME SCREEN ------------------
     def game_screen(self):
-
         for w in self.root.winfo_children():
             w.destroy()
+        self.root.configure(bg="#0b5e2b")
 
-        self.info = tk.Label(self.root,
-                             text=f"Igrač: {self.name}   Novac: {self.money}€",
-                             font=("Arial", FONT_SIZE))
+        self.info = tk.Label(self.root, text=f"{self.name} | €{self.money}", bg="#0b5e2b", fg="gold",
+                             font=("Courier New", FONT_SIZE))
         self.info.pack()
 
-        self.table = tk.Label(self.root, text="", font=("Arial", FONT_SIZE))
-        self.table.pack(pady=20)
+        self.canvas = tk.Canvas(self.root, width=700, height=400, bg="#0b5e2b", highlightthickness=0)
+        self.canvas.pack()
+        self.canvas.create_oval(50, 50, 650, 350, fill="#0f7a3a", outline="gold", width=5)
+        self.canvas.create_text(350, 70, text="BLACKJACK", fill="white", font=("Courier New", FONT_SIZE+6, "bold"))
+        self.canvas.create_text(350, 110, text="DEALER", fill="white", font=("Courier New", FONT_SIZE))
 
-        bet_frame = tk.Frame(self.root)
-        bet_frame.pack()
+        self.bet_entry = tk.Entry(self.root)
+        self.bet_entry.pack()
+        tk.Button(self.root, text="Deal", command=self.deal).pack(pady=5)
 
-        tk.Label(bet_frame, text="Oklada:").pack(side="left")
+        self.hit_btn = tk.Button(self.root, text="Hit", command=self.hit, state="disabled")
+        self.hit_btn.pack(side="left", padx=10)
+        self.stand_btn = tk.Button(self.root, text="Stand", command=self.stand, state="disabled")
+        self.stand_btn.pack(side="left", padx=10)
+        self.double_btn = tk.Button(self.root, text="Double", command=self.double, state="disabled")
+        self.double_btn.pack(side="left", padx=10)
+        self.split_btn = tk.Button(self.root, text="Split", command=self.split, state="disabled")
+        self.split_btn.pack(side="left", padx=10)
 
-        self.bet_entry = tk.Entry(bet_frame)
-        self.bet_entry.pack(side="left")
+        # ------------------ KEY BINDINGS ------------------
+        self.root.bind("<h>", lambda e: self.hit())
+        self.root.bind("<H>", lambda e: self.hit())
+        self.root.bind("<s>", lambda e: self.stand())
+        self.root.bind("<S>", lambda e: self.stand())
+        self.root.bind("<d>", lambda e: self.deal())
+        self.root.bind("<D>", lambda e: self.deal())
+        self.root.bind("2", lambda e: self.double())
+        self.root.bind("<w>", lambda e: self.split())
+        self.root.bind("<W>", lambda e: self.split())
 
-        tk.Button(self.root, text="Deal", command=self.deal).pack()
-
-        self.hit_btn = tk.Button(self.root, text="Hit",
-                                 command=self.hit, state="disabled")
-        self.hit_btn.pack()
-
-        self.stand_btn = tk.Button(self.root, text="Stand",
-                                   command=self.stand, state="disabled")
-        self.stand_btn.pack()
-
-    # -----------------------
-    # DEAL
-    # -----------------------
-
+    # ------------------ DEAL ------------------
     def deal(self):
+        if self.round_active:
+            messagebox.showwarning("Upozorenje", "Runda još traje!")
+            return
 
         try:
             self.bet = int(self.bet_entry.get())
         except:
+            messagebox.showerror("Error", "Neispravna oklada!")
             return
-
-        if self.bet > self.money:
-            messagebox.showerror("Error", "Nemaš toliko novca!")
+        if self.bet <= 0 or self.bet > self.money:
+            messagebox.showerror("Error", "Neispravna oklada!")
             return
 
         self.deck = create_deck()
-
         self.player = [self.deck.pop(), self.deck.pop()]
         self.dealer = [self.deck.pop(), self.deck.pop()]
-        self.ai1 = [self.deck.pop(), self.deck.pop()]
-        self.ai2 = [self.deck.pop(), self.deck.pop()]
-        self.ai3 = [self.deck.pop(), self.deck.pop()]
 
         self.hit_btn.config(state="normal")
         self.stand_btn.config(state="normal")
+        self.double_btn.config(state="normal")
+        self.split_btn.config(state="normal")
 
+        self.round_active = True
+        self.is_split = False
         self.update_table()
 
-    # -----------------------
-    # HIT
-    # -----------------------
-
+    # ------------------ HIT ------------------
     def hit(self):
+        if not self.round_active:
+            return
 
-        self.player.append(self.deck.pop())
+        if self.is_split:
+            hand = self.split_hands[self.active_hand_index]
+            hand.append(self.deck.pop())
 
-        if hand_value(self.player) > 21:
+            if hand_value(hand) > 21:
+                self.next_hand()
+            else:
+                self.update_table()
+        else:
+            self.player.append(self.deck.pop())
+            if hand_value(self.player) > 21:
+                self.dealer_play()
+                self.end_round()
+            else:
+                self.update_table()
+
+    # ------------------ STAND ------------------
+    def stand(self):
+        if not self.round_active:
+            return
+
+        if self.is_split:
+            self.next_hand()
+        else:
+            self.dealer_play()
             self.end_round()
 
+    # ------------------ DOUBLE ------------------
+    def double(self):
+        if not self.round_active:
+            return
+        if self.money >= self.bet:
+            self.bet *= 2
+            self.hit()
+            if self.round_active:
+                self.stand()
+        else:
+            messagebox.showerror("Error", "Nemate dovoljno novca za Double!")
+
+    # ------------------ SPLIT ------------------
+    def split(self):
+        if not self.round_active:
+            return
+
+        if len(self.player) != 2 or card_value(self.player[0]) != card_value(self.player[1]):
+            messagebox.showerror("Error", "Ne možeš splitati ove karte!")
+            return
+
+        if self.money < self.bet:
+            messagebox.showerror("Error", "Nemaš dovoljno novca za split!")
+            return
+
+        self.money -= self.bet
+
+        self.split_hands = [
+            [self.player[0], self.deck.pop()],
+            [self.player[1], self.deck.pop()]
+        ]
+
+        self.active_hand_index = 0
+        self.is_split = True
+
         self.update_table()
 
-    # -----------------------
-    # STAND
-    # -----------------------
+    # ------------------ NEXT HAND (SPLIT) ------------------
+    def next_hand(self):
+        self.active_hand_index += 1
 
-    def stand(self):
+        if self.active_hand_index >= len(self.split_hands):
+            self.dealer_play()
+            self.end_round()
+        else:
+            self.update_table()
 
+    # ------------------ DEALER PLAY ------------------
+    def dealer_play(self):
         while hand_value(self.dealer) < 17:
             self.dealer.append(self.deck.pop())
 
-        self.end_round()
-
-    # -----------------------
-    # END ROUND
-    # -----------------------
-
+    # ------------------ END ROUND ------------------
     def end_round(self):
-
-        player_score = hand_value(self.player)
         dealer_score = hand_value(self.dealer)
+        results = []
 
-        if player_score > 21:
-            self.money -= self.bet
-            result = "Bust! Izgubio si."
-        elif dealer_score > 21 or player_score > dealer_score:
-            self.money += self.bet
-            result = "Pobijedio si!"
-        elif player_score == dealer_score:
-            result = "Push!"
+        if self.is_split:
+            for hand in self.split_hands:
+                player_score = hand_value(hand)
+
+                if player_score > 21:
+                    self.money -= self.bet
+                    results.append("Bust")
+                elif dealer_score > 21 or player_score > dealer_score:
+                    self.money += self.bet
+                    results.append("Win")
+                elif player_score == dealer_score:
+                    results.append("Push")
+                else:
+                    self.money -= self.bet
+                    results.append("Lose")
+
+            result_text = " | ".join(results)
         else:
-            self.money -= self.bet
-            result = "Dealer pobjeđuje."
+            player_score = hand_value(self.player)
+
+            if player_score > 21:
+                self.money -= self.bet
+                result_text = "Bust! Dealer wins."
+            elif dealer_score > 21 or player_score > dealer_score:
+                self.money += self.bet
+                result_text = "You Win!"
+            elif player_score == dealer_score:
+                result_text = "Push!"
+            else:
+                self.money -= self.bet
+                result_text = "Dealer Wins!"
 
         self.update_table(show_all=True)
-
-        messagebox.showinfo("Rezultat", result)
-
-        if self.money <= 0:
-
-            if messagebox.askyesno("Game Over",
-                                   "Izgubio si sve! Restart?"):
-                self.money = 2000
-            else:
-                self.root.quit()
-
-        self.info.config(text=f"Igrač: {self.name}   Novac: {self.money}€")
+        messagebox.showinfo("Rezultat", result_text)
+        self.info.config(text=f"{self.name} | €{self.money}")
 
         self.hit_btn.config(state="disabled")
         self.stand_btn.config(state="disabled")
+        self.double_btn.config(state="disabled")
+        self.split_btn.config(state="disabled")
 
-    # -----------------------
-    # UPDATE TABLE
-    # -----------------------
+        self.round_active = False
+        self.is_split = False
 
+    # ------------------ UPDATE TABLE ------------------
     def update_table(self, show_all=False):
+        self.canvas.delete("all")
+        self.canvas.create_oval(50, 50, 650, 350, fill="#0f7a3a", outline="gold", width=5)
+        self.canvas.create_text(350, 70, text="BLACKJACK", fill="white", font=("Courier New", FONT_SIZE+6, "bold"))
+        self.canvas.create_text(350, 110, text="DEALER", fill="white", font=("Courier New", FONT_SIZE))
 
-        dealer_cards = self.dealer if show_all else [self.dealer[0], "?"]
+        # Dealer karte
+        for i, card in enumerate(self.dealer):
+            if not show_all and i == 1:
+                draw_card(self.canvas, 270 + i*70, 130, "?♠")
+            else:
+                draw_card(self.canvas, 270 + i*70, 130, card)
 
-        text = f"""
-Dealer: {dealer_cards} ({hand_value(self.dealer) if show_all else ""})
+        # Player karte
+        if self.is_split:
+            for h_index, hand in enumerate(self.split_hands):
+                for i, card in enumerate(hand):
+                    x_offset = 150 if h_index == 0 else 400
+                    draw_card(self.canvas, x_offset + i*70, 250, card)
 
-{self.name}: {self.player} ({hand_value(self.player)})
+                # označi aktivnu ruku
+                if h_index == self.active_hand_index:
+                    self.canvas.create_text(
+                        x_offset + 50, 230,
+                        text="AKTIVNA",
+                        fill="yellow",
+                        font=("Arial", 10, "bold")
+                    )
+        else:
+            for i, card in enumerate(self.player):
+                draw_card(self.canvas, 270 + i*70, 250, card)
 
-AI1: {self.ai1}
-AI2: {self.ai2}
-AI3: {self.ai3}
-"""
-
-        self.table.config(text=text)
-
-
-# -----------------------
+# ----------------------
 # RUN
-# -----------------------
-
+# ----------------------
 root = tk.Tk()
 root.title("Blackjack Casino")
-root.geometry("600x500")
+root.geometry("700x600")
 
-start_music()
+start_music()  # start glazba u pozadini
 
 game = Blackjack(root)
-
+root.protocol("WM_DELETE_WINDOW", lambda: [stop_music(), root.destroy()])
 root.mainloop()
+
