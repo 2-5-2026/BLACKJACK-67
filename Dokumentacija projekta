@@ -6,4 +6,36 @@ Mentor: Goran Boneta
 Uvod
 
 Izradili smo vlastiti program blackjack kako bi povezali nama zanimljivu kartašku igru i svoje vještine programiranja (te ih ujedno i poboljšali). 
-Program je napravljen u programskom jeziku Python 
+Program je napravljen u programskom jeziku Python te ima grafičko sučelje i glazbu.
+
+
+Pravila igre
+
+Cilj igre: skupiti što bliže 21 bez da se pređe.
+
+Vrijednosti karata:
+Brojčane karte (2–10) vrijede koliko piše (broj) a karte s "licima" vrijede:
+Dečko (J) = 2
+Dama (Q) = 3
+Kralj (K) = 4
+As (A) = 11
+
+Igrači:
+Igra se s 2 ili više igrača
+Jedan igrač može biti djelitelj (nije nužno kao u blackjacku)
+
+Tijek igre:
+Svaki igrač dobije 2 karte.
+Redom igrači odlučuju:
+“Vući” (uzeti još kartu)
+“Stati” (zadržati trenutni zbroj)
+Ako igrač prijeđe 21 ispada iz runde
+Nakon što svi završe, uspoređuju se rezultati
+
+Posebna pravila:
+Ajnc = točno 21 znači automatska pobjeda
+Dvije karte (As + slika) također se često računa kao “ajnz”
+Ako svi pređu 21 nitko ne pobjeđuje
+Ako više igrača ima isti broj može biti neriješeno ili se dijeli pobjeda (po dogovoru).
+
+
