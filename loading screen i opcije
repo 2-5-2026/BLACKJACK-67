@@ -4,26 +4,17 @@ import random
 import threading
 import time
 
-# ----------------------
-# GLOBAL SETTINGS
-# ----------------------
 FONT_SIZE = 14
 START_MONEY = 2000
 VOLUME = 5
 running_music = True
 
-# ----------------------
-# WINSOUND (samo Windows)
-# ----------------------
 try:
     import winsound
 except:
     winsound = None
 
-# ----------------------
-# MUZIKA – vibey kazino vibe
-# ----------------------
-def casino_vibe_music():
+def music():
     notes = [
         440, 523, 587, 523, 440, 392, 330,
         392, 440, 392, 349, 330, 294
@@ -42,15 +33,12 @@ def casino_vibe_music():
             time.sleep(0.05)
 
 def start_music():
-    threading.Thread(target=casino_vibe_music, daemon=True).start()
+    threading.Thread(target= music, daemon=True).start()
 
 def stop_music():
     global running_music
     running_music = False
 
-# ----------------------
-# KARTE
-# ----------------------
 suits = ["♠", "♥", "♦", "♣"]
 values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
 
@@ -67,7 +55,7 @@ def card_value(card):
         return 11
     return int(v)
 
-def hand_value(hand):
+def value(hand):
     total = sum(card_value(c) for c in hand)
     aces = sum(1 for c in hand if c[:-1] == "A")
     while total > 21 and aces:
@@ -75,12 +63,9 @@ def hand_value(hand):
         aces -= 1
     return total
 
-# ----------------------
-# CRTAJ KARTU
-# ----------------------
 def draw_card(canvas, x, y, card):
     w, h = 60, 90
-    if card == "?♠":  # karta okrenuta naopako
+    if card == "?♠":  
         canvas.create_rectangle(x, y, x+w, y+h, fill="blue", outline="black", width=2)
         canvas.create_text(x+w/2, y+h/2, text="?", fill="white", font=("Arial", 24, "bold"))
         return
@@ -91,9 +76,6 @@ def draw_card(canvas, x, y, card):
     canvas.create_text(x+8, y+10, text=f"{value}{suit}", fill=color, font=("Arial", 12, "bold"), anchor="nw")
     canvas.create_text(x+w/2, y+h/2, text=suit, fill=color, font=("Arial", 24, "bold"))
 
-# ----------------------
-# BLACKJACK GAME
-# ----------------------
 class Blackjack:
     def __init__(self, root):
         self.root = root
@@ -105,14 +87,12 @@ class Blackjack:
         self.dealer = []
         self.round_active = False
 
-        # SPLIT VARIABLES
         self.split_hands = []
         self.active_hand_index = 0
         self.is_split = False
 
         self.main_menu()
 
-    # ------------------ MAIN MENU ------------------
     def main_menu(self):
         for w in self.root.winfo_children():
             w.destroy()
@@ -123,8 +103,6 @@ class Blackjack:
         self.name_entry = tk.Entry(self.root)
         self.name_entry.pack()
         tk.Button(self.root, text="Start", command=self.start_game).pack(pady=10)
-
-    # ------------------ START GAME ------------------
     def start_game(self):
         self.name = self.name_entry.get()
         if not self.name:
@@ -132,7 +110,6 @@ class Blackjack:
             return
         self.game_screen()
 
-    # ------------------ GAME SCREEN ------------------
     def game_screen(self):
         for w in self.root.winfo_children():
             w.destroy()
@@ -160,8 +137,6 @@ class Blackjack:
         self.double_btn.pack(side="left", padx=10)
         self.split_btn = tk.Button(self.root, text="Split", command=self.split, state="disabled")
         self.split_btn.pack(side="left", padx=10)
-
-        # ------------------ KEY BINDINGS ------------------
         self.root.bind("<h>", lambda e: self.hit())
         self.root.bind("<H>", lambda e: self.hit())
         self.root.bind("<s>", lambda e: self.stand())
@@ -172,7 +147,6 @@ class Blackjack:
         self.root.bind("<w>", lambda e: self.split())
         self.root.bind("<W>", lambda e: self.split())
 
-    # ------------------ DEAL ------------------
     def deal(self):
         if self.round_active:
             messagebox.showwarning("Upozorenje", "Runda još traje!")
@@ -200,7 +174,6 @@ class Blackjack:
         self.is_split = False
         self.update_table()
 
-    # ------------------ HIT ------------------
     def hit(self):
         if not self.round_active:
             return
@@ -209,19 +182,18 @@ class Blackjack:
             hand = self.split_hands[self.active_hand_index]
             hand.append(self.deck.pop())
 
-            if hand_value(hand) > 21:
+            if value(hand) > 21:
                 self.next_hand()
             else:
                 self.update_table()
         else:
             self.player.append(self.deck.pop())
-            if hand_value(self.player) > 21:
+            if value(self.player) > 21:
                 self.dealer_play()
                 self.end_round()
             else:
                 self.update_table()
 
-    # ------------------ STAND ------------------
     def stand(self):
         if not self.round_active:
             return
@@ -232,7 +204,6 @@ class Blackjack:
             self.dealer_play()
             self.end_round()
 
-    # ------------------ DOUBLE ------------------
     def double(self):
         if not self.round_active:
             return
@@ -244,7 +215,6 @@ class Blackjack:
         else:
             messagebox.showerror("Error", "Nemate dovoljno novca za Double!")
 
-    # ------------------ SPLIT ------------------
     def split(self):
         if not self.round_active:
             return
@@ -269,7 +239,6 @@ class Blackjack:
 
         self.update_table()
 
-    # ------------------ NEXT HAND (SPLIT) ------------------
     def next_hand(self):
         self.active_hand_index += 1
 
@@ -279,19 +248,16 @@ class Blackjack:
         else:
             self.update_table()
 
-    # ------------------ DEALER PLAY ------------------
     def dealer_play(self):
-        while hand_value(self.dealer) < 17:
+        while value(self.dealer) < 17:
             self.dealer.append(self.deck.pop())
-
-    # ------------------ END ROUND ------------------
     def end_round(self):
-        dealer_score = hand_value(self.dealer)
+        dealer_score = value(self.dealer)
         results = []
 
         if self.is_split:
             for hand in self.split_hands:
-                player_score = hand_value(hand)
+                player_score = value(hand)
 
                 if player_score > 21:
                     self.money -= self.bet
@@ -307,7 +273,7 @@ class Blackjack:
 
             result_text = " | ".join(results)
         else:
-            player_score = hand_value(self.player)
+            player_score = value(self.player)
 
             if player_score > 21:
                 self.money -= self.bet
@@ -333,28 +299,24 @@ class Blackjack:
         self.round_active = False
         self.is_split = False
 
-    # ------------------ UPDATE TABLE ------------------
     def update_table(self, show_all=False):
         self.canvas.delete("all")
         self.canvas.create_oval(50, 50, 650, 350, fill="#0f7a3a", outline="gold", width=5)
         self.canvas.create_text(350, 70, text="BLACKJACK", fill="white", font=("Courier New", FONT_SIZE+6, "bold"))
         self.canvas.create_text(350, 110, text="DEALER", fill="white", font=("Courier New", FONT_SIZE))
 
-        # Dealer karte
         for i, card in enumerate(self.dealer):
             if not show_all and i == 1:
                 draw_card(self.canvas, 270 + i*70, 130, "?♠")
             else:
                 draw_card(self.canvas, 270 + i*70, 130, card)
 
-        # Player karte
         if self.is_split:
             for h_index, hand in enumerate(self.split_hands):
                 for i, card in enumerate(hand):
                     x_offset = 150 if h_index == 0 else 400
                     draw_card(self.canvas, x_offset + i*70, 250, card)
 
-                # označi aktivnu ruku
                 if h_index == self.active_hand_index:
                     self.canvas.create_text(
                         x_offset + 50, 230,
@@ -366,16 +328,12 @@ class Blackjack:
             for i, card in enumerate(self.player):
                 draw_card(self.canvas, 270 + i*70, 250, card)
 
-# ----------------------
-# RUN
-# ----------------------
 root = tk.Tk()
 root.title("Blackjack Casino")
 root.geometry("700x600")
 
-start_music()  # start glazba u pozadini
+start_music()  
 
 game = Blackjack(root)
 root.protocol("WM_DELETE_WINDOW", lambda: [stop_music(), root.destroy()])
 root.mainloop()
-
