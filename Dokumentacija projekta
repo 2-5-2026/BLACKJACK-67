@@ -39,3 +39,22 @@ Ako svi pređu 21 nitko ne pobjeđuje
 Ako više igrača ima isti broj može biti neriješeno ili se dijeli pobjeda (po dogovoru).
 
 
+Ovaj program predstavlja jednostavnu implementaciju kartaške igre temeljene na pravilima blackjacka (poznatog i kao „ajnc”), u kojoj igrač igra protiv računala.
+Program je napisan u programskom jeziku Python i koristi ugrađeni modul random za nasumično izvlačenje karata, čime se simulira stvarno miješanje špila.
+Na početku programa definiran je špil karata pomoću rječnika (dict). Svaka karta predstavljena je jedinstvenim ključem (npr. „2H”, „JS”, „AK”), dok je vrijednost tog ključa broj bodova koje karta nosi.
+Brojčane karte imaju svoju prirodnu vrijednost, dok sve slike (dečko, dama i kralj) vrijede 10 bodova. As ima početnu vrijednost 11, ali se kasnije u igri može prilagoditi na vrijednost 1 kako bi se 
+izbjeglo prekoračenje zbroja od 21.
+Nakon definiranja špila, program stvara listu svih dostupnih karata. Ta lista predstavlja aktivni špil iz kojeg se karte izvlače. Važno je naglasiti da se svaka izvučena karta uklanja iz liste,
+čime se osigurava da se ista karta ne može pojaviti više puta tijekom jedne igre.
+Igra započinje tako da igrač automatski dobiva dvije nasumične karte. Njihove vrijednosti zbrajaju se u varijablu koja prati trenutni rezultat igrača.
+Istovremeno se vodi evidencija o broju asova koje igrač posjeduje, što je važno za kasniju prilagodbu ukupnog zbroja. Nakon početne podjele karata, program ispisuje dobivene karte i njihov ukupni zbroj.
+U sljedećoj fazi igrač ima mogućnost donošenja odluke – može zatražiti dodatnu kartu ili odlučiti stati.
+Ovaj se proces odvija unutar beskonačne petlje koja traje sve dok igrač ne odluči stati ili dok ne izgubi.
+Ako igrač odabere vući kartu, program nasumično bira novu kartu iz preostalih i dodaje njezinu vrijednost ukupnom zbroju.
+U slučaju da zbroj premaši 21, provjerava se postoji li as koji se može „pretvoriti” iz vrijednosti 11 u 1. Ako takav as postoji, zbroj se smanjuje za 10 bodova i igra se nastavlja.
+U suprotnom, igrač gubi jer je prekoračio dozvoljeni zbroj.
+Ako igrač ne izgubi, na red dolazi računalo. Računalo također dobiva dvije početne karte i računa njihov zbroj. Za razliku od igrača, računalo ne donosi odluke interaktivno, već slijedi unaprijed definirano pravilo:
+vuče nove karte sve dok mu je zbroj manji od 17. Tijekom tog procesa primjenjuje se ista logika za asove kao i kod igrača, čime se omogućuje izbjegavanje nepotrebnog gubitka.
+Nakon što računalo završi s izvlačenjem karata, dolazi do završne faze igre u kojoj se uspoređuju rezultati igrača i računala. Ako računalo ima veći zbroj od igrača, a nije prešlo 21, igrač gubi.
+Ako igrač ima veći zbroj, pobjeđuje. U slučaju jednakog rezultata, igra završava neriješeno.
+Ovaj program demonstrira osnovne koncepte programiranja kao što su rad s listama i rječnicima, upravljanje petljama i grananjem, kao i jednostavnu logiku igre.
