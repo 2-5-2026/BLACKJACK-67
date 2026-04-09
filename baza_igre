@@ -1,9 +1,7 @@
-# ====================== 1️⃣ Kod pravila igre ======================
 import random
 import tkinter as tk
 import pygame
 
-# Karte i vrijednosti
 karte = {'2H': 2, '2T': 2, '2P': 2, '2K': 2,
     '3H': 3, '3T': 3, '3P': 3, '3K': 3,
     '4H': 4, '4T': 4, '4P': 4, '4K': 4,
