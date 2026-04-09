@@ -1,4 +1,9 @@
+# ====================== 1️⃣ Kod pravila igre ======================
 import random
+import tkinter as tk
+import pygame
+
+# Karte i vrijednosti
 karte = {'2H': 2, '2T': 2, '2P': 2, '2K': 2,
     '3H': 3, '3T': 3, '3P': 3, '3K': 3,
     '4H': 4, '4T': 4, '4P': 4, '4K': 4,
@@ -11,73 +16,183 @@ karte = {'2H': 2, '2T': 2, '2P': 2, '2K': 2,
     'QH': 10, 'QT': 10, 'QP': 10, 'QK': 10,
     'KH': 10, 'KT': 10, 'KP': 10, 'KK': 10,
     'AH': 11, 'AT': 11, 'AP': 11, 'AK': 11}
-vrijednosti = list(karte.keys())
+
+vrijednosti = []
 zb = 0
-bra=0
-for e in random.sample(vrijednosti, 2):
-    zb += karte[e]
-    vrijednosti.remove(e)
-    if 'A' in e:
-        bra+=1;
-    print(e,':', karte[e])
-print("Zbroj je: ", zb)
-while True:
-    print("Zelis li izvući kartu?? (Napiši DA ili NE)")
-    s = str(input())
-    if s=='DA':
-        r= random.choice(vrijednosti)
-        vrijednosti.remove(r)
-        if 'A' in r:
-            bra+=1;
-        print(r,':', karte[r])
-        zb+=karte[r]
-        
-        if zb>21:
-            if bra>0:
-                zb-=10;
-                bra-=1
-            else:
-                print("Zbroj je: ", zb)
-                break
-        print("Zbroj je: ", zb)
-        
-    elif s =='NE':
-        break
-    else:
-        print("Neispravan unos!!")
-        continue
-if zb>21:
-    print("EKSPLODIRAJ!!!!")
-else:
-    print("SADA KOMPJUTER IZVLACI\n\n")
+bra = 0
+ruke = []
+
+zbk = 0
+brak = 0
+ruke_diler = []
+
+novac = 100
+ulog = 0
+
+# ====================== 2️⃣ Kod za muziku ======================
+pygame.mixer.init()
+pygame.mixer.music.load("C:/Users/luxio/OneDrive/Documents/Piton/music.mp3")  # stavi svoj MP3
+pygame.mixer.music.play(-1)
+
+# ====================== 3️⃣ Kod za grafičko sučelje ======================
+root = tk.Tk()
+root.title("Blackjack GUI")
+root.geometry("600x650")
+
+label_info = tk.Label(root, text="", font=("Arial", 12), justify="left")
+label_info.pack(pady=10)
+
+frame_buttons = tk.Frame(root)
+frame_buttons.pack(pady=10)
+
+label_novac = tk.Label(root, text=f"Novac: {novac}", font=("Arial", 12))
+label_novac.pack(pady=5)
+
+tk.Label(root, text="Unesi ulog:", font=("Arial", 12)).pack()
+entry_ulog = tk.Entry(root)
+entry_ulog.pack()
+
+def nova_igra():
+    global vrijednosti, zb, bra, ruke, zbk, brak, ruke_diler
+    vrijednosti = list(karte.keys())
+    zb = 0
+    bra = 0
+    ruke = []
     zbk = 0
-    bra=0
+    brak = 0
+    ruke_diler = []
+
+    for e in random.sample(vrijednosti, 2):
+        zb += karte[e]
+        vrijednosti.remove(e)
+        if 'A' in e:
+            bra += 1
+        ruke.append(e)
+    azuriraj_label()
+
+def azuriraj_label():
+    tekst = "Tvoje karte:\n"
+    for e in ruke:
+        tekst += f"{e}: {karte[e]}\n"
+    tekst += f"Zbroj je: {zb}\nNovac: {novac}"
+    label_info["text"] = tekst
+
+def postavi_ulog():
+    global ulog, novac
+    try:
+        ulog = int(entry_ulog.get())
+    except:
+        label_info["text"] = "Unesi broj!"
+        return False
+    if ulog > novac or ulog <= 0:
+        label_info["text"] = "Neispravan ulog!"
+        return False
+    return True
+
+def potvrdi_ulog():
+    if postavi_ulog():
+        button_da.config(state="normal")
+        button_ne.config(state="normal")
+        entry_ulog.config(state="disabled")
+        button_potvrdi.config(state="disabled")
+        nova_igra()
+
+def hit():
+    global zb, bra
+    r = random.choice(vrijednosti)
+    vrijednosti.remove(r)
+    ruke.append(r)
+    if 'A' in r:
+        bra += 1
+    zb += karte[r]
+    if zb > 21:
+        if bra > 0:
+            zb -= 10
+            bra -= 1
+        else:
+            azuriraj_label()
+            label_info["text"] += "\nEKSPLODIRAO SI!!!!"
+            button_da.config(state="disabled")
+            button_ne.config(state="disabled")
+            dealer_turn()
+            return
+    azuriraj_label()
+
+def stand_original():
+    dealer_turn()
+
+def dealer_turn():
+    global zbk, brak, ruke_diler, vrijednosti, novac
+    zbk = 0
+    brak = 0
+    ruke_diler = []
+
     for e in random.sample(vrijednosti, 2):
         zbk += karte[e]
         vrijednosti.remove(e)
-        print(e,':', karte[e])
+        ruke_diler.append(e)
         if 'A' in e:
-            bra+=1
-    print("Zbroj je: ", zbk)
+            brak += 1
     while True:
-        if zbk<17:
-            r= random.choice(vrijednosti)
+        if zbk < 17:
+            r = random.choice(vrijednosti)
             vrijednosti.remove(r)
+            ruke_diler.append(r)
             if 'A' in r:
-                bra+=1
-            print(r,':', karte[r])
-            zbk+=karte[r]
-            print("Zbroj je: ", zbk)
-            if zbk>21 and bra>0:
-                zbk-=10
-                bra-=1
+                brak += 1
+            zbk += karte[r]
+            if zbk > 21 and brak > 0:
+                zbk -= 10
+                brak -= 1
         else:
             break
-    print("Zbroj je: ", zbk)
 
-    if zbk>zb and zbk<22:
-        print("Izgubio si!!")
-    elif zbk<zb:
-        print("Pobjedio si!!")
+    tekst = "Tvoje karte:\n"
+    for e in ruke:
+        tekst += f"{e}: {karte[e]}\n"
+    tekst += f"Zbroj je: {zb}\n\nDiler karte:\n"
+    for e in ruke_diler:
+        tekst += f"{e}: {karte[e]}\n"
+    tekst += f"Zbroj je: {zbk}\n"
+
+    global ulog, novac
+    if zb > 21:
+        tekst += "EKSPLODIRAO SI!!!"
+        novac -= ulog
+    elif zbk > 21:
+        tekst += "Pobjedio si! Diler je prešao 21"
+        novac += ulog
+    elif zbk > zb:
+        tekst += "Izgubio si!!"
+        novac -= ulog
+    elif zbk < zb:
+        tekst += "Pobjedio si!!"
+        novac += ulog
     else:
-        print("TIE!!")
+        tekst += "TIE!!"
+    label_info["text"] = tekst
+    label_novac["text"] = f"Novac: {novac}"
+
+def nova_igra_gui():
+    global ulog
+    ulog = 0
+    entry_ulog.config(state="normal")
+    entry_ulog.delete(0, tk.END)
+    button_da.config(state="disabled")
+    button_ne.config(state="disabled")
+    button_potvrdi.config(state="normal")
+
+button_da = tk.Button(frame_buttons, text="DA", width=10, state="disabled", command=hit)
+button_da.pack(side="left", padx=5)
+
+button_ne = tk.Button(frame_buttons, text="NE", width=10, state="disabled", command=stand_original)
+button_ne.pack(side="left", padx=5)
+
+button_nova = tk.Button(root, text="Nova igra", width=15, command=nova_igra_gui)
+button_nova.pack(pady=10)
+
+button_potvrdi = tk.Button(root, text="Potvrdi ulog", command=potvrdi_ulog)
+button_potvrdi.pack(pady=5)
+
+nova_igra_gui()
+root.mainloop()
