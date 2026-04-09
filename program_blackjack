@@ -1,3 +1,4 @@
+from baza_igre import *
 root = tk.Tk()
 root.title("Blackjack GUI")
 root.geometry("600x650")
