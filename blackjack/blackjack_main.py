@@ -1,4 +1,5 @@
 from blackjack_dodatak import *
+from blackjack_pjesma import *
 root = tk.Tk()
 root.title("Blackjack GUI")
 root.geometry("600x650")
