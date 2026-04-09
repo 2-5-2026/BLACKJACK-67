@@ -25,7 +25,7 @@ Grafičko sučelje
 
 Grafičko sučelje dizajnirano je tako da igrač lako vidi svoje karte, zbroj i stanje novca. Poruke se prikazuju u realnom vremenu,
 uključujući obavijesti o pogrešnom unosu uloga, prekoračenju 21 ili završetku runde. Interaktivna sučelja omogućuju jednostavno klikom biranje opcija poput
-povlačenja karte ili završetka poteza. Dugmad i prikazi prilagođeni su tako da igra bude intuitivna i ugodna za korištenje, čak i za početnike.
+povlačenja karte ili završetka poteza. Korištene su komande tkinter i geometry.
 
 
 Glazba i atmosfera
