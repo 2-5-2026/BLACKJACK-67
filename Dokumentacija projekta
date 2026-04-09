@@ -5,80 +5,47 @@ Mentor: Goran Boneta
 
 Uvod
 
-Izradili smo vlastiti program blackjack kako bi povezali nama zanimljivu kartašku igru i svoje vještine programiranja (te ih ujedno i poboljšali). 
-Program je napravljen u programskom jeziku Python te ima grafičko sučelje i glazbu.
+Ovaj projekt predstavlja Blackjack igru programiranu u Pythonu, s dodatkom glazbe u pozadini.
+Cilj programa je omogućiti igraču da uživa u simulaciji blackjacka kroz jednostavno grafičko sučelje, prateći pritom svoje karte,
+zbroj karata i stanje novca.
 
 
-Pravila igre
+Opis igre
 
-Cilj igre: skupiti što bliže 21 bez da se pređe.
-
-Vrijednosti karata:
-Brojčane karte (2–10) vrijede koliko piše (broj) a karte s "licima" vrijede:
-Dečko (J) = 2
-Dama (Q) = 3
-Kralj (K) = 4
-As (A) = 11
-
-Igrači:
-Igra se s 2 ili više igrača
-Jedan igrač može biti djelitelj (nije nužno kao u blackjacku)
-
-Tijek igre:
-Svaki igrač dobije 2 karte.
-Redom igrači odlučuju:
-“Vući” (uzeti još kartu)
-“Stati” (zadržati trenutni zbroj)
-Ako igrač prijeđe 21 ispada iz runde
-Nakon što svi završe, uspoređuju se rezultati
-
-Posebna pravila:
-Ajnc = točno 21 znači automatska pobjeda
-Dvije karte (As + slika) također se često računa kao “ajnz”
-Ako svi pređu 21 nitko ne pobjeđuje
-Ako više igrača ima isti broj može biti neriješeno ili se dijeli pobjeda (po dogovoru).
+Igrač počinje s određenim iznosom novca i može postavljati uloge prije svake runde. Nakon unosa uloga, igrač dobiva početne karte i
+ima mogućnost povlačenja dodatnih karata ili zaustavljanja poteza. Cilj je približiti se zbroju 21, a da se pritom ne prijeđe taj broj.
+Diler u igri automatski izvlači karte i slijedi standardna pravila blackjacka – mora izvlačiti dok ne dosegne određeni prag (17 ili više).
+Nakon što su potezi završeni, program prikazuje rezultat runde i automatski ažurira stanje novca igrača. Ako igrač pobijedi, dobiva svoj ulog; ako izgubi,
+ulog se oduzima. U slučaju izjednačenja, rezultat se prikazuje kao neriješeno.
+Igra se može igrati više rundi zaredom, a igrač uvijek može postaviti novi ulog prije početka sljedeće igre.
+Ovaj sustav omogućuje jednostavno i kontinuirano igranje, slično iskustvu u stvarnom blackjacku.
 
 
-Opis rada programa:
+Grafičko sučelje
 
-Ovaj program predstavlja jednostavnu implementaciju kartaške igre temeljene na pravilima blackjacka (poznatog i kao „ajnc”), u kojoj igrač igra protiv računala.
-Program je napisan u programskom jeziku Python i koristi ugrađeni modul random za nasumično izvlačenje karata, čime se simulira stvarno miješanje špila.
-Na početku programa definiran je špil karata pomoću rječnika (dict). Svaka karta predstavljena je jedinstvenim ključem (npr. „2H”, „JS”, „AK”), dok je vrijednost tog ključa broj bodova koje karta nosi.
-Brojčane karte imaju svoju prirodnu vrijednost, dok sve slike (dečko, dama i kralj) vrijede 10 bodova. As ima početnu vrijednost 11, ali se kasnije u igri može prilagoditi na vrijednost 1 kako bi se 
-izbjeglo prekoračenje zbroja od 21.
-Nakon definiranja špila, program stvara listu svih dostupnih karata. Ta lista predstavlja aktivni špil iz kojeg se karte izvlače. Važno je naglasiti da se svaka izvučena karta uklanja iz liste,
-čime se osigurava da se ista karta ne može pojaviti više puta tijekom jedne igre.
-Igra započinje tako da igrač automatski dobiva dvije nasumične karte. Njihove vrijednosti zbrajaju se u varijablu koja prati trenutni rezultat igrača.
-Istovremeno se vodi evidencija o broju asova koje igrač posjeduje, što je važno za kasniju prilagodbu ukupnog zbroja. Nakon početne podjele karata, program ispisuje dobivene karte i njihov ukupni zbroj.
-U sljedećoj fazi igrač ima mogućnost donošenja odluke – može zatražiti dodatnu kartu ili odlučiti stati.
-Ovaj se proces odvija unutar beskonačne petlje koja traje sve dok igrač ne odluči stati ili dok ne izgubi.
-Ako igrač odabere vući kartu, program nasumično bira novu kartu iz preostalih i dodaje njezinu vrijednost ukupnom zbroju.
-U slučaju da zbroj premaši 21, provjerava se postoji li as koji se može „pretvoriti” iz vrijednosti 11 u 1. Ako takav as postoji, zbroj se smanjuje za 10 bodova i igra se nastavlja.
-U suprotnom, igrač gubi jer je prekoračio dozvoljeni zbroj.
-Ako igrač ne izgubi, na red dolazi računalo. Računalo također dobiva dvije početne karte i računa njihov zbroj. Za razliku od igrača, računalo ne donosi odluke interaktivno, već slijedi unaprijed definirano pravilo:
-vuče nove karte sve dok mu je zbroj manji od 17. Tijekom tog procesa primjenjuje se ista logika za asove kao i kod igrača, čime se omogućuje izbjegavanje nepotrebnog gubitka.
-Nakon što računalo završi s izvlačenjem karata, dolazi do završne faze igre u kojoj se uspoređuju rezultati igrača i računala. Ako računalo ima veći zbroj od igrača, a nije prešlo 21, igrač gubi.
-Ako igrač ima veći zbroj, pobjeđuje. U slučaju jednakog rezultata, igra završava neriješeno.
-Ovaj program demonstrira osnovne koncepte programiranja kao što su rad s listama i rječnicima, upravljanje petljama i grananjem, kao i jednostavnu logiku igre.
+Grafičko sučelje dizajnirano je tako da igrač lako vidi svoje karte, zbroj i stanje novca. Poruke se prikazuju u realnom vremenu,
+uključujući obavijesti o pogrešnom unosu uloga, prekoračenju 21 ili završetku runde. Interaktivna sučelja omogućuju jednostavno klikom biranje opcija poput
+povlačenja karte ili završetka poteza. Dugmad i prikazi prilagođeni su tako da igra bude intuitivna i ugodna za korištenje, čak i za početnike.
 
 
-Tehničke informacije: 
+Glazba i atmosfera
 
-Ovaj program razvijen je u programskom jeziku Python te koristi standardne funkcionalnosti jezika bez potrebe za dodatnim vanjskim bibliotekama.
-Jedina korištena biblioteka je ugrađeni modul random, koji omogućuje generiranje slučajnih vrijednosti i time simulira nasumično izvlačenje karata iz špila.
-Program je kompatibilan s većinom modernih verzija Pythona (preporučeno Python 3.x) i može se pokretati u bilo kojem standardnom razvojnom okruženju ili putem komandne linije.
-Struktura programa temelji se na korištenju osnovnih tipova podataka. Rječnik (dict) koristi se za pohranu špila karata, gdje su ključevi stringovi koji predstavljaju pojedine karte,
-a vrijednosti su cijeli brojevi koji označavaju bodovnu vrijednost tih karata. Lista (list) koristi se za dinamičko upravljanje dostupnim kartama tijekom igre.
-Iz te liste se karte uklanjaju kako se izvlače, čime se sprječava njihovo ponovno korištenje unutar iste partije.
-Za kontrolu tijeka igre koriste se petlje (while) i uvjetne naredbe (if, elif, else). Glavna interakcija s korisnikom ostvarena je putem standardnog ulaza (input) i izlaza (print),
-što znači da se program izvodi u tekstualnom (konzolnom) sučelju. Korisnički unos ograničen je na jednostavne tekstualne naredbe („DA” ili „NE”),
-a program uključuje osnovnu provjeru ispravnosti unosa kako bi se izbjegle greške tijekom izvođenja.
-Važan tehnički aspekt programa je upravljanje vrijednošću asa. Budući da as može imati dvije vrijednosti (11 ili 1), koristi se dodatna varijabla koja prati broj asova u ruci.
-Kada ukupni zbroj prijeđe 21, program automatski prilagođava vrijednost asa oduzimanjem 10 bodova, čime se simulira promjena njegove vrijednosti s 11 na 1.
-Ova logika omogućuje realističnije ponašanje igre i sprječava nepotrebne gubitke.
-Program koristi funkcije iz modula random, poput random.sample() za izvlačenje više različitih karata odjednom i random.choice() za odabir jedne nasumične karte iz preostalih.
-Ove funkcije osiguravaju da je svaka igra drugačija i nepredvidiva.
-Također, program ne koristi napredne mehanizme za obradu grešaka (poput try-except blokova), već se oslanja na kontrolu toka i pretpostavku ispravnog korisničkog unosa.
-Iz tog razloga, u slučaju nepredviđenih unosa ili izmjena u kodu, postoji mogućnost pojave grešaka tijekom izvođenja.
-Zaključno, tehnička izvedba programa oslanja se na osnovne programske elemente i jednostavne algoritme, što ga čini pogodnim za učenje i razumijevanje temeljnih principa programiranja,
-ali istovremeno ostavlja prostor za daljnje nadogradnje i optimizaciju.
+Za dodatnu atmosferu, u pozadini svira glazba koja se reproducira tijekom cijele igre. Ovaj element povećava doživljaj i čini igru privlačnijom, stvarajući osjećaj
+pravog casino okruženja. Igrač može uživati u muzici dok prati karte i donosi odluke, čime je iskustvo interaktivno i zabavno.
+
+
+Tehničke informacije
+
+Projekt je implementiran u jednom Python fajlu i ne zahtijeva dodatne module osim standardnog Python paketa i Pygame biblioteke za reprodukciju glazbe.
+Sve varijable i logika igre smještene su unutar programa, što ga čini jednostavnim za pokretanje i distribuciju.
+Program prati stanje novca igrača, omogućuje klađenje i ponavljanje rundi, što dodaje strateški element igri. Grafičko sučelje omogućuje intuitivnu kontrolu,
+a pozadinska glazba doprinosi ukupnom doživljaju. Ovaj projekt je dobar primjer kako kombinirati logiku igre, interaktivno sučelje i audio elemente u jednom
+Python programu.
+
+
+Zaključak
+
+Ovaj projekt omogućuje igraču da se osjeti kao u pravom blackjack okruženju, ali u sigurnom digitalnom obliku.
+Igra kombinira elemente strategije, klađenja i sreće, a grafičko sučelje i glazba čine iskustvo ugodnim i zabavnim.
+Program je fleksibilan, jednostavan za korištenje i služi kao odlična osnova za proširenja, poput dodavanja animacija,
+vizualnog prikaza karata ili naprednije logike dilera.
